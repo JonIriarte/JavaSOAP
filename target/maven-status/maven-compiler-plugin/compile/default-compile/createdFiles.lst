@@ -1,0 +1,5 @@
+com/company/legacy/dao/EmployeeDao.class
+com/company/legacy/soap/SoapConfig.class
+com/company/legacy/util/DBConnection.class
+com/company/legacy/soap/EmployeeService.class
+com/company/legacy/model/Employee.class
