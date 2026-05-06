@@ -25,12 +25,12 @@ public class EmployeeService {
     }
 
     @WebMethod
-    public void addEmployee(Employee employee) {
+    public void addEmployee(@WebParam(name = "employee") Employee employee) {
         employeeDao.insert(employee);
     }
 
     @WebMethod
-    public void updateEmployee(Employee employee) {
+    public void updateEmployee(@WebParam(name = "employee") Employee employee) {
         employeeDao.update(employee);
     }
 
