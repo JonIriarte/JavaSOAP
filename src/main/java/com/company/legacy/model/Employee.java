@@ -9,7 +9,9 @@ public class Employee {
     private String firstName;
     private String lastName;
     private String email;
+    private Role role;
 
+    
     public Employee() {
     }
 
@@ -44,5 +46,16 @@ public class Employee {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+  
+
 
 }

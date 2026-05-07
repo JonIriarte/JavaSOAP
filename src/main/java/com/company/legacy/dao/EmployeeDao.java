@@ -8,24 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.company.legacy.model.Employee;
+import com.company.legacy.model.Role;
 import com.company.legacy.util.DBConnection;
 
 public class EmployeeDao {
     public List<Employee> findAll() throws Exception {
 
         List<Employee> employees = new ArrayList<>();
-
-        String sql = "SELECT * FROM employee";
+        String sql = "SELECT e.id, e.first_name, e.last_name, e.email, r.id AS role_id, r.role FROM employee e  LEFT JOIN role r ON e.role_id = r.id;";
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Employee e = new Employee();
-                e.setId(rs.getInt("id"));
-                e.setFirstName(rs.getString("first_name"));
-                e.setLastName(rs.getString("last_name"));
-                e.setEmail(rs.getString("email"));
+                Employee e = mapRow(rs);
                 employees.add(e);
             }
         }
@@ -34,7 +30,7 @@ public class EmployeeDao {
     }
 
     public Employee findById(int id) {
-        String sql = "SELECT id, first_name, last_name, email FROM employee WHERE id = ?";
+        String sql = "SELECT e.id, e.first_name, e.last_name, e.email, r.role FROM employee e LEFT JOIN role r ON e.role_id = r.id WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -105,6 +101,19 @@ public class EmployeeDao {
         emp.setFirstName(rs.getString("first_name"));
         emp.setLastName(rs.getString("last_name"));
         emp.setEmail(rs.getString("email"));
+
+        Role role = new Role();
+
+        if (rs.getInt("role_id") != 0) {
+
+            role.setId(rs.getInt("role_id"));
+            role.setRole(rs.getString("role"));
+            emp.setRole(role);
+        } else {
+            role.setRole("No role assigned");
+            emp.setRole(role);
+        }
+
         return emp;
     }
 
