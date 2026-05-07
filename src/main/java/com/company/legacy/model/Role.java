@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Role {
 
     private int id;
-    private String role;
+    private String name;
 
     public int getId() {
         return id;
@@ -16,11 +16,11 @@ public class Role {
         this.id = id;
     }
 
-    public String getRole() {
-        return role;
+    public String getName() {
+        return name;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setName(String name) {
+        this.name = name;
     }
 }

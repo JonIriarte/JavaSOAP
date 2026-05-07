@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class EmployeeDao {
     public List<Employee> findAll() throws Exception {
 
         List<Employee> employees = new ArrayList<>();
-        String sql = "SELECT e.id, e.first_name, e.last_name, e.email, r.id AS role_id, r.role FROM employee e  LEFT JOIN role r ON e.role_id = r.id;";
+        String sql = "SELECT id, first_name, last_name, email, role_id FROM employee;";
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
@@ -30,7 +31,7 @@ public class EmployeeDao {
     }
 
     public Employee findById(int id) {
-        String sql = "SELECT e.id, e.first_name, e.last_name, e.email, r.role FROM employee e LEFT JOIN role r ON e.role_id = r.id WHERE id = ?";
+        String sql = "SELECT e.id, e.first_name, e.last_name, e.email, e.role_id FROM employee WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -50,7 +51,7 @@ public class EmployeeDao {
     }
 
     public void insert(Employee employee) {
-        String sql = "INSERT INTO employee (first_name, last_name, email) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO employee (first_name, last_name, email, role_id) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -58,6 +59,12 @@ public class EmployeeDao {
             ps.setString(1, employee.getFirstName());
             ps.setString(2, employee.getLastName());
             ps.setString(3, employee.getEmail());
+
+            if (employee.getRole() != null) {
+                ps.setInt(4, employee.getRole().getId());
+            } else {
+                ps.setNull(4, Types.INTEGER);
+            }
 
             ps.executeUpdate();
         } catch (Exception e) {
@@ -66,7 +73,7 @@ public class EmployeeDao {
     }
 
     public void update(Employee employee) {
-        String sql = "UPDATE employee SET first_name = ?, last_name = ?, email = ? WHERE id = ?";
+        String sql = "UPDATE employee SET first_name = ?, last_name = ?, email = ? , role_id = ? WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -74,8 +81,13 @@ public class EmployeeDao {
             ps.setString(1, employee.getFirstName());
             ps.setString(2, employee.getLastName());
             ps.setString(3, employee.getEmail());
-            ps.setInt(4, employee.getId());
 
+            if (employee.getRole() != null) {
+                ps.setInt(4, employee.getRole().getId());
+            } else {
+                ps.setNull(4, Types.INTEGER);
+            }
+            ps.setInt(5, employee.getId());
             ps.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -102,16 +114,13 @@ public class EmployeeDao {
         emp.setLastName(rs.getString("last_name"));
         emp.setEmail(rs.getString("email"));
 
-        Role role = new Role();
-
-        if (rs.getInt("role_id") != 0) {
-
-            role.setId(rs.getInt("role_id"));
-            role.setRole(rs.getString("role"));
+        int roleId = rs.getInt("role_id");
+        if (!rs.wasNull()) {
+            Role role = new Role();
+            role.setId(roleId);
             emp.setRole(role);
         } else {
-            role.setRole("No role assigned");
-            emp.setRole(role);
+            emp.setRole(null);
         }
 
         return emp;
